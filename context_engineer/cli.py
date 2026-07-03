@@ -86,6 +86,29 @@ def build(ctx, path, pattern, no_recursive, max_size):
 
 
 @main.command()
+@click.argument("url")
+@click.option("--max-pages", default=10, type=int, help="Max number of pages to crawl")
+@click.option("--no-same-domain", is_flag=True, help="Crawl all domains, not just start")
+@click.pass_context
+def crawl(ctx, url, max_pages, no_same_domain):
+    """Crawl and index a website starting from URL."""
+    engine = _get_context(ctx.obj)
+    with console.status(f"[cyan]Crawling {url}...[/cyan]"):
+        stats = engine.crawl(
+            start_url=url,
+            max_pages=max_pages,
+            same_domain_only=not no_same_domain,
+        )
+    console.print(Panel(
+        f"[green]✓ Crawled[/green] [bold]{stats['pages']}[/bold] pages\n"
+        f"[green]✓ Created[/green] [bold]{stats['chunks']}[/bold] chunks\n"
+        f"[yellow]⚠ Errors[/yellow] [bold]{len(stats['errors'])}[/bold] pages",
+        title="Crawl Complete",
+        border_style="green",
+    ))
+
+
+@main.command()
 @click.argument("question")
 @click.option("--top-k", default=20, type=int, help="Number of chunks to retrieve")
 @click.option("--temperature", default=0.3, type=float, help="LLM temperature")

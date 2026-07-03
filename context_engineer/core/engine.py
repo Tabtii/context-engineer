@@ -18,6 +18,7 @@ from typing import Optional
 
 from context_engineer.core.budget import BudgetConfig
 from context_engineer.core.chunker import select_chunker
+from context_engineer.core.crawler import WebCrawler
 from context_engineer.core.embedder import Embedder
 from context_engineer.core.generator import Generator
 from context_engineer.core.hybrid import HybridRetriever
@@ -215,6 +216,72 @@ class ConText:
         for cid, vec in zip(chunk_ids, vectors):
             self.store.add_embedding(cid, vec, self.embedder.model)
         return doc.id
+
+    def crawl(
+        self,
+        start_url: str,
+        max_pages: int = 10,
+        same_domain_only: bool = True,
+        user_agent: str = "ConText/0.3",
+    ) -> dict:
+        """Crawle Webseiten ab start_url (BFS) und indexiere sie.
+
+        Returns:
+            {"pages": N, "chunks": M, "errors": [...]}
+        """
+        crawler = WebCrawler(user_agent=user_agent)
+        results = crawler.crawl(
+            start_url,
+            max_pages=max_pages,
+            same_domain_only=same_domain_only,
+        )
+        stats = {"pages": 0, "chunks": 0, "errors": []}
+        for result in results:
+            if result.error or not result.content.strip():
+                stats["errors"].append({"url": result.url, "error": result.error})
+                continue
+            try:
+                # Add to store
+                doc = self.store.add_document(
+                    source_path=result.url,
+                    content=result.content,
+                    source_type="url",
+                    metadata={"title": result.title},
+                )
+                if doc.id is None:
+                    continue
+                # Check if already indexed
+                existing = self.store.get_chunks_for_document(doc.id)
+                if existing:
+                    continue
+                # Chunk
+                chunker = select_chunker(result.url, result.content)
+                raw_chunks = chunker.chunk(result.content)
+                # Store chunks
+                db_chunks = [
+                    Chunk(
+                        id=None,
+                        document_id=doc.id,
+                        chunk_index=i,
+                        text=c.text,
+                        token_count=c.token_count,
+                        char_count=c.char_count,
+                        strategy=c.strategy,
+                        metadata={"source": result.url, "type": "url", "title": result.title},
+                    )
+                    for i, c in enumerate(raw_chunks)
+                ]
+                chunk_ids = self.store.add_chunks(db_chunks)
+                # Embed
+                texts = [c.text for c in raw_chunks]
+                vectors = self.embedder.embed_batch(texts)
+                for cid, vec in zip(chunk_ids, vectors):
+                    self.store.add_embedding(cid, vec, self.embedder.model)
+                stats["pages"] += 1
+                stats["chunks"] += len(chunk_ids)
+            except Exception as e:
+                stats["errors"].append({"url": result.url, "error": str(e)})
+        return stats
 
     # ─── Query ───
 

@@ -273,6 +273,39 @@ def test_hybrid_retriever_init():
         assert h is not None
 
 
+def test_crawler_html_to_text():
+    """Test HTML to text conversion."""
+    from context_engineer.core.crawler import html_to_text
+    html = """
+    <html>
+    <head><title>Test</title></head>
+    <body>
+        <nav>Menu</nav>
+        <h1>Hello</h1>
+        <p>World</p>
+        <script>alert('x')</script>
+        <footer>Footer</footer>
+    </body>
+    </html>
+    """
+    text = html_to_text(html)
+    assert "Hello" in text
+    assert "World" in text
+    assert "Menu" not in text  # nav excluded
+    assert "Footer" not in text  # footer excluded
+    assert "alert" not in text  # script excluded
+
+
+def test_crawler_url_parse():
+    """Test URL parsing in crawler."""
+    from urllib.parse import urlparse
+    url = "https://example.com/path?query=1"
+    parsed = urlparse(url)
+    assert parsed.scheme == "https"
+    assert parsed.netloc == "example.com"
+    assert parsed.path == "/path"
+
+
 # ─── Integration (requires Ollama) ───
 
 @pytest.mark.skipif(
