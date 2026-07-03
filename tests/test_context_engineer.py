@@ -12,6 +12,8 @@ from context_engineer.core.chunker import (
     MarkdownChunker, CodeChunker, select_chunker,
 )
 from context_engineer.core.budget import BudgetConfig, fit_to_budget
+from context_engineer.core.bm25 import BM25Index, tokenize
+from context_engineer.core.hybrid import HybridRetriever
 from context_engineer.utils.tokens import count_tokens, truncate_to_tokens
 
 
@@ -218,6 +220,57 @@ def test_engine_query_empty():
         # With no documents, should return early message (not crash)
         assert "No documents indexed" in answer.text or "build" in answer.text
         assert answer.sources == []
+
+
+# ─── Integration (requires Ollama) ───
+
+def test_bm25_tokenize():
+    tokens = tokenize("Hello, World! This is a test.")
+    assert "hello" in tokens
+    assert "world" in tokens
+    assert "test" in tokens
+    assert "," not in tokens
+
+
+def test_bm25_index_basic():
+    from context_engineer.store.db import Chunk as DBChunk
+    chunks = [
+        DBChunk(id=1, document_id=1, chunk_index=0, text="Rust memory safety ownership",
+                token_count=10, char_count=50, strategy="code", metadata={}),
+        DBChunk(id=2, document_id=1, chunk_index=1, text="Python is interpreted language",
+                token_count=10, char_count=50, strategy="code", metadata={}),
+        DBChunk(id=3, document_id=1, chunk_index=2, text="JavaScript runs in browser",
+                token_count=10, char_count=50, strategy="code", metadata={}),
+    ]
+    idx = BM25Index()
+    idx.fit(chunks)
+    assert idx.avgdl > 0
+    assert len(idx.df) > 0
+    # Search for rust
+    results = idx.search("rust memory", top_k=2)
+    assert len(results) > 0
+    # First result should be chunk 1
+    assert results[0][0] == 1
+    # Higher score for rust than python
+    assert results[0][1] > 0
+
+
+def test_bm25_empty():
+    idx = BM25Index()
+    idx.fit([])
+    assert idx.search("test") == []
+
+
+def test_hybrid_retriever_init():
+    """Hybrid retriever should initialize with same interface as Retriever."""
+    with tempfile.TemporaryDirectory() as tmp:
+        db = Path(tmp) / "test.db"
+        from context_engineer.store.db import Store
+        from context_engineer.core.embedder import Embedder
+        store = Store(db)
+        emb = Embedder(model="fake", base_url="http://localhost:9999")
+        h = HybridRetriever(store, emb)
+        assert h is not None
 
 
 # ─── Integration (requires Ollama) ───

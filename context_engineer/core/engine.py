@@ -20,6 +20,7 @@ from context_engineer.core.budget import BudgetConfig
 from context_engineer.core.chunker import select_chunker
 from context_engineer.core.embedder import Embedder
 from context_engineer.core.generator import Generator
+from context_engineer.core.hybrid import HybridRetriever
 from context_engineer.core.retriever import Retriever
 from context_engineer.store.db import Chunk, Document, Store
 from context_engineer.utils.tokens import count_tokens
@@ -82,12 +83,17 @@ class ConText:
         embed_model: str = "nomic-embed-text",
         ollama_url: str = "http://localhost:11434",
         context_window: int = 8192,
+        hybrid: bool = True,
     ):
         self.store = Store(db_path)
         self.embedder = Embedder(model=embed_model, base_url=ollama_url)
         self.budget = BudgetConfig(total_tokens=context_window)
         self.generator = Generator(model=llm_model, base_url=ollama_url, budget=self.budget)
-        self.retriever = Retriever(self.store, self.embedder, self.budget)
+        if hybrid:
+            self.retriever = HybridRetriever(self.store, self.embedder, self.budget)
+        else:
+            self.retriever = Retriever(self.store, self.embedder, self.budget)
+        self.hybrid = hybrid
 
     # ─── Build / Index ───
 
