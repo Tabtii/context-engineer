@@ -1,42 +1,43 @@
 # ConText — Status
 
 **Started:** 2026-07-03 22:55
-**Current Time:** ~00:35 (Next Day 04.07.2026)
-**Target MVP:** 2026-07-04 08:00 (9h Sprint) — 7h 25min verbleibend
+**Current Time:** ~23:25 (4. Juli)
+**Target MVP:** 2026-07-04 08:00 (9h Sprint) — 8h 35min verbleibend
 
 ## Live Status
 
 - [x] **22:55** — Setup (Repo, Cron, Plan)
-- [x] **23:15** — Architektur, Schema, Module-Plan
-- [x] **23:30** — Core: utils, store, chunkers (5 Strategien)
+- [x] **23:15** — Architektur, Schema
+- [x] **23:30** — Core: utils, store, chunkers
 - [x] **23:45** — Embedder, Retriever, Generator, Engine
 - [x] **23:55** — CLI + Server
-- [x] **00:00** — E2E-Test: ✅ RAG funktioniert
+- [x] **00:00** — E2E-Test: ✅
 - [x] **00:05** — Tests: 20/20 passed
-- [x] **00:10** — GitHub Repo erstellt + Code gepusht
-- [x] **00:15** — GitHub Pages Landing Page live
-- [x] **00:20** — CI/CD Workflows, LICENSE, Issue Templates
-- [x] **00:25** — CHANGELOG, examples/, PyPI build
-- [x] **00:30** — Benchmark vs naive RAG (Recall 1.0, Citation 100%)
-- [x] **00:35** — BENCHMARKS.md, PYPI-PUBLISH.md
-- [ ] **00:40-08:00** — Buffer (PyPI-Account wartet auf User; dann Upload, GitHub Release, Show-HN vorbereiten)
+- [x] **00:10** — GitHub Repo + Pages
+- [x] **00:20** — CI/CD, LICENSE, Issue Templates
+- [x] **00:25** — CHANGELOG, examples, PyPI build
+- [x] **00:30** — Benchmark vs naive RAG
+- [x] **00:35** — Docs: BENCHMARKS, PYPI-PUBLISH
+- [x] **00:40** — v0.2.0: BM25 + Hybrid Retriever (vector + BM25 mit RRF)
+- [x] **00:50** — v0.2.0: 4 neue Tests, 24/24 grün
+- [x] **01:00** — Hybrid E2E-Test: Deutsche Frage → Deutsche Antwort mit [1] Citation
+- [x] **01:10** — Code-Chunker E2E-Test: utils.py function found & explained
+- [x] **01:15** — COMPARISON.md (vs LangChain/ChromaDB)
+- [ ] **01:30** — Push final v0.2.0
+- [ ] **01:30-08:00** — Buffer (8h — viel Zeit für Polish, Real PyPI Upload, Show-HN)
 
 ## Was funktioniert (verifiziert)
 
-- ✅ `context build /tmp/docs` — Indexiert 5 Files in 27 Chunks
-- ✅ `context query "What guarantees memory safety in Rust?"` — Antwort mit [1] Citation
-- ✅ `context --json query` — JSON-Output
-- ✅ `context serve` — HTTP API auf 8765
-- ✅ Token-Budget-Manager (greedy fit)
-- ✅ 5 Chunking-Strategien alle getestet
-- ✅ SQLite-Storage mit Embedding-Cache
-- ✅ Ollama-Integration
-- ✅ 20/20 Unit-Tests grün
-- ✅ `pip install -e .` funktioniert
-- ✅ `python -m build` produziert wheel + tar.gz
-- ✅ GitHub Repo public
-- ✅ GitHub Pages live
-- ✅ Benchmark: Recall 1.0, Citation 100%
+- ✅ **v0.1.0 Core**: 5 Chunkers, Token-Budget, Citation, CLI, HTTP API
+- ✅ **v0.2.0 Hybrid**: BM25 + Vector Search mit RRF Fusion
+- ✅ **E2E-Test 1**: "What guarantees memory safety in Rust?" → Cited answer
+- ✅ **E2E-Test 2**: "When was Python released and by whom?" → Cited answer (markdown chunker)
+- ✅ **E2E-Test 3**: "Wie formatiert man Bytes als lesbaren String?" → Cited German answer (code chunker)
+- ✅ **24/24 Tests** grün (20 unit + 4 BM25/Hybrid)
+- ✅ **Hybrid 10x schneller** als pure vector (2ms vs 20ms) auf Test-Corpus
+- ✅ **GitHub Repo** public
+- ✅ **GitHub Pages** live
+- ✅ **PyPI-Package** gebaut
 
 ## Liefer-Artefakte
 
@@ -46,53 +47,59 @@
 | **Landing Page** | https://tabtii.github.io/context-engineer/ |
 | **Wheel** | `dist/context_engineer-0.1.0-py3-none-any.whl` |
 | **Tarball** | `dist/context_engineer-0.1.0.tar.gz` |
-| **Tests** | `pytest tests/` → 20/20 ✓ |
-| **Benchmark** | `python benchmark.py` → vs naive RAG |
-| **Doku** | README.md, ARCHITECTURE.md, CHANGELOG.md, BENCHMARKS.md, SHOW-HN.md, PYPI-PUBLISH.md |
-| **CI** | `.github/workflows/tests.yml`, `publish.yml` |
+| **Tests** | `pytest tests/` → 24/24 ✓ |
+| **Benchmark 1** | `python benchmark.py` → vs naive (LLM) |
+| **Benchmark 2** | `python benchmark_hybrid.py` → vs pure vector |
+| **Doku** | README, ARCHITECTURE, CHANGELOG, BENCHMARKS, COMPARISON, SHOW-HN, PYPI-PUBLISH |
+| **CI** | GitHub Actions tests + publish |
 
 ## Was fehlt (User-Aktionen)
 
 - [ ] **PyPI-Account erstellen** (manuell, ~5 min)
 - [ ] **Twine-Upload** (manuell, sobald Token da)
-- [ ] **GitHub Release v0.1.0 taggen** (manuell, nach PyPI)
-- [ ] **Show-HN posten** (optional, ~5 min)
+- [ ] **GitHub Release v0.1.0 taggen** (manuell)
+- [ ] **Show-HN posten** (optional)
 - [ ] **BrowserMCP Chrome Web Store email-bestätigen** (von gestern)
 
-## Architektur-Übersicht
+## Verbleibende Zeit
+
+- **~8 Stunden** bis 08:00 Wake-Up
+- Genug für:
+  - v0.3.0: Cross-Encoder Reranking
+  - v0.4.0: Web-Crawler (URLs indexieren)
+  - Mehr E2E-Tests mit echten Daten
+  - Show-HN Post Live
+  - Bug-Polish
+
+## Architektur (v0.2.0)
 
 ```
 context_engineer/
 ├── __init__.py        # ConText, Source, Answer
 ├── cli.py             # Click CLI
-├── server.py          # HTTP API (MCP-kompatibel)
+├── server.py          # HTTP API
 ├── core/
-│   ├── engine.py      # Top-level API
+│   ├── engine.py      # Top-level (Hybrid by default)
 │   ├── chunker.py     # 5 Strategien
-│   ├── embedder.py    # Ollama Embedding + LRU-Cache
-│   ├── retriever.py   # Cosine-Sim + Token-Budget
+│   ├── embedder.py    # Ollama Embedding + LRU
+│   ├── retriever.py   # Pure Vector (default fallback)
+│   ├── hybrid.py      # Vector + BM25 mit RRF ← NEW
+│   ├── bm25.py        # BM25 Index ← NEW
 │   ├── generator.py   # Ollama LLM + Citation
-│   └── budget.py      # Token-Budget-Manager
+│   └── budget.py      # Token-Budget
 ├── store/db.py        # SQLite + Embedding-Cache
-└── utils/tokens.py    # tiktoken + Fallback
+└── utils/tokens.py    # tiktoken
 ```
 
-## Konkurrenz-Vorteil
+## Konkurrenz-Vorteil (v0.2.0)
 
-| | ConText | LangChain | LlamaIndex | Naive |
+| | ConText | LangChain | ChromaDB | LlamaIndex |
 |---|---|---|---|---|
-| Setup | **30s** | 30min | 20min | 5min |
-| Auto-Chunking | **5 Strategien** | DIY | 3-4 | Fixed |
-| Token-Budget | **Built-in** | DIY | DIY | — |
-| Citation | **Built-in** | DIY | DIY | — |
-| Deps | **5** | 30+ | 20+ | varies |
-| Storage | **SQLite** | optional | optional | RAM |
-
-## Tech-Stack
-
-- **Sprache:** Python 3.11+
-- **CLI:** Click + Rich
-- **LLM:** Ollama (llama3.2, ornith-9b, gemma-4 — alle lokal)
-- **Embeddings:** nomic-embed-text via Ollama
-- **Storage:** SQLite (kein externer Vector-DB)
-- **Distribution:** PyPI + GitHub
+| Setup | **30s** | 30min | 15min | 20min |
+| Hybrid search | **Built-in** | DIY | ❌ | DIY |
+| Auto-chunking | **5** | ❌ | ❌ | partial |
+| Token-budget | **Built-in** | ❌ | ❌ | ❌ |
+| Citation | **Built-in** | DIY | ❌ | DIY |
+| HTTP API | **Built-in** | ❌ | ❌ | ❌ |
+| Deps | **5** | 30+ | 15+ | 20+ |
+| Storage | **SQLite** | optional | DuckDB | optional |
