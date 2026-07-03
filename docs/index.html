@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ConText — Context-Engineer for Local AI Agents</title>
+  <meta name="description" content="Zero-config RAG for Ollama with automatic chunking, token-budget awareness, and source citation. MIT-licensed, runs offline." />
+  <style>
+    :root {
+      --bg: #0a0e0d;
+      --bg-elev: #14191a;
+      --fg: #e6f0ee;
+      --fg-dim: #8fa6a3;
+      --accent: #52b788;
+      --accent-2: #e8a33d;
+      --border: #1f2a29;
+      --code-bg: #0d1314;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      line-height: 1.6;
+      font-size: 16px;
+    }
+    .container { max-width: 960px; margin: 0 auto; padding: 0 24px; }
+    nav { padding: 20px 0; border-bottom: 1px solid var(--border); }
+    nav .container { display: flex; align-items: center; justify-content: space-between; }
+    .logo { font-weight: 800; font-size: 20px; letter-spacing: -0.5px; }
+    .logo .accent { color: var(--accent); }
+    nav a { color: var(--fg-dim); text-decoration: none; margin-left: 24px; font-size: 14px; }
+    nav a:hover { color: var(--accent); }
+    .hero { padding: 80px 0 60px; text-align: center; }
+    .hero h1 {
+      font-size: 48px;
+      font-weight: 800;
+      letter-spacing: -1.5px;
+      line-height: 1.1;
+      margin-bottom: 20px;
+    }
+    .hero h1 .accent { color: var(--accent); }
+    .hero p {
+      font-size: 18px;
+      color: var(--fg-dim);
+      max-width: 640px;
+      margin: 0 auto 32px;
+    }
+    .badges { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 32px; }
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      background: var(--bg-elev);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      font-size: 12px;
+      color: var(--fg-dim);
+    }
+    .badge.green { color: var(--accent); border-color: var(--accent); }
+    .badge.amber { color: var(--accent-2); border-color: var(--accent-2); }
+    .install {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px 24px;
+      max-width: 560px;
+      margin: 0 auto;
+      font-family: "JetBrains Mono", "Fira Code", monospace;
+      font-size: 14px;
+      text-align: left;
+    }
+    .install .comment { color: var(--fg-dim); }
+    .install .cmd { color: var(--accent); }
+    .section { padding: 60px 0; }
+    .section h2 {
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: -1px;
+      margin-bottom: 24px;
+    }
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
+      margin-top: 40px;
+    }
+    .feature {
+      background: var(--bg-elev);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+    }
+    .feature h3 {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--accent);
+    }
+    .feature p { font-size: 14px; color: var(--fg-dim); }
+    .feature .icon { font-size: 24px; margin-bottom: 12px; }
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px 24px;
+      overflow-x: auto;
+      font-family: "JetBrains Mono", "Fira Code", monospace;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    pre .c { color: var(--fg-dim); }
+    pre .k { color: var(--accent); }
+    pre .s { color: var(--accent-2); }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 32px;
+      font-size: 14px;
+    }
+    th, td { padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--border); }
+    th { color: var(--fg-dim); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
+    td.check { color: var(--accent); }
+    td.no { color: var(--fg-dim); }
+    .cta {
+      background: linear-gradient(135deg, var(--bg-elev), var(--bg));
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 40px;
+      text-align: center;
+      margin: 40px 0;
+    }
+    .cta h2 { margin-bottom: 16px; }
+    .btn {
+      display: inline-block;
+      padding: 12px 24px;
+      background: var(--accent);
+      color: var(--bg);
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 14px;
+      margin: 8px;
+    }
+    .btn:hover { background: #6dcfa0; }
+    .btn.secondary { background: transparent; color: var(--fg); border: 1px solid var(--border); }
+    footer {
+      padding: 40px 0;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      color: var(--fg-dim);
+      font-size: 13px;
+    }
+    footer a { color: var(--accent); text-decoration: none; }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="container">
+      <div class="logo">Con<span class="accent">Text</span></div>
+      <div>
+        <a href="#features">Features</a>
+        <a href="#compare">Compare</a>
+        <a href="#quickstart">Quick Start</a>
+        <a href="https://github.com/Tabtii/context-engineer">GitHub</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="hero">
+    <div class="container">
+      <div class="badges">
+        <span class="badge green">MIT License</span>
+        <span class="badge green">Zero-Config</span>
+        <span class="badge amber">Runs 100% Offline</span>
+        <span class="badge">v0.1.0</span>
+      </div>
+      <h1>Context-Engineer for <span class="accent">Local AI Agents</span></h1>
+      <p>Zero-config RAG for Ollama. Automatic chunking, token-budget awareness, and source citation in one Python package.</p>
+      <div class="install">
+<span class="comment"># Install in 30 seconds</span>
+<span class="cmd">pip install context-engineer</span>
+<span class="cmd">ollama pull nomic-embed-text llama3.2</span>
+<span class="cmd">context build ./docs</span>
+<span class="cmd">context query "What is the main topic?"</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" id="features">
+    <div class="container">
+      <h2>Built for local AI, not cloud APIs.</h2>
+      <p style="color: var(--fg-dim);">Most RAG tools assume you have Pinecone, OpenAI, and a fat wallet. ConText assumes you have a laptop and Ollama.</p>
+      <div class="features">
+        <div class="feature">
+          <div class="icon">🎯</div>
+          <h3>5 Auto Chunkers</h3>
+          <p>Markdown, code, semantic, fixed, sliding — picked per file type. No more manually tuning chunk sizes.</p>
+        </div>
+        <div class="feature">
+          <div class="icon">💰</div>
+          <h3>Token-Budget Aware</h3>
+          <p>Retrieval fits chunks to your model's context window. No "context overflow" errors. No wasted tokens.</p>
+        </div>
+        <div class="feature">
+          <div class="icon">📚</div>
+          <h3>Source Citation</h3>
+          <p>Every answer includes <code>[1]</code>, <code>[2]</code>, <code>[3]</code> references. Trace claims back to source docs.</p>
+        </div>
+        <div class="feature">
+          <div class="icon">🚀</div>
+          <h3>30-Second Setup</h3>
+          <p><code>pip install</code> + Ollama models + <code>context build</code>. That's it. No Docker, no API keys, no config files.</p>
+        </div>
+        <div class="feature">
+          <div class="icon">💾</div>
+          <h3>SQLite Storage</h3>
+          <p>No ChromaDB, no Faiss, no Pinecone. Just a file. Back it up, copy it, gitignore it — done.</p>
+        </div>
+        <div class="feature">
+          <div class="icon">🔌</div>
+          <h3>HTTP API</h3>
+          <p>MCP-compatible server. Plug into Cursor, VS Code, or your own agent in minutes.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" id="compare" style="background: var(--bg-elev);">
+    <div class="container">
+      <h2>How it compares.</h2>
+      <table>
+        <thead>
+          <tr><th>Feature</th><th>ConText</th><th>LangChain</th><th>LlamaIndex</th><th>Naive RAG</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Setup time</td><td class="check">30s</td><td>30min</td><td>20min</td><td>5min</td></tr>
+          <tr><td>Auto chunking</td><td class="check">5 strategies</td><td class="no">DIY</td><td class="check">Yes</td><td class="no">Fixed only</td></tr>
+          <tr><td>Token-budget aware</td><td class="check">Built-in</td><td class="no">DIY</td><td class="no">DIY</td><td class="no">No</td></tr>
+          <tr><td>Source citation</td><td class="check">Built-in</td><td class="no">DIY</td><td class="no">DIY</td><td class="no">No</td></tr>
+          <tr><td>Runs offline</td><td class="check">Yes</td><td class="check">Yes</td><td class="check">Yes</td><td class="no">No</td></tr>
+          <tr><td>Dependencies</td><td class="check">5</td><td>30+</td><td>20+</td><td>varies</td></tr>
+          <tr><td>Storage</td><td class="check">SQLite</td><td>optional</td><td>optional</td><td>RAM</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="section" id="quickstart">
+    <div class="container">
+      <h2>Up and running in 4 commands.</h2>
+      <pre><span class="c"># 1. Install the package</span>
+<span class="k">$</span> pip install context-engineer
+
+<span class="c"># 2. Pull Ollama models (one-time, ~1GB each)</span>
+<span class="k">$</span> ollama pull nomic-embed-text
+<span class="k">$</span> ollama pull llama3.2
+
+<span class="c"># 3. Index your docs</span>
+<span class="k">$</span> context build ./docs
+╭─ Build Complete ────────────╮
+│ ✓ Indexed 47 files         │
+│ ✓ Created 312 chunks       │
+│ ⚠ Skipped 3 files (too big)│
+╰────────────────────────────╯
+
+<span class="c"># 4. Ask questions</span>
+<span class="k">$</span> context query "How does the memory safety work?"
+╭─ Answer (2.7s) ─────────────────────────────────╮
+│ Rust's ownership system guarantees memory       │
+│ safety at compile time. Every value has an      │
+│ owner, and there can only be one owner at a     │
+│ time. When the owner goes out of scope, the     │
+│ value is dropped [1].                          │
+╰─────────────────────────────────────────────────╯
+Sources
+  [1] /docs/rust/ownership.md (score: 0.855)
+  [2] /docs/rust/concurrency.md (score: 0.612)
+</pre>
+    </div>
+  </div>
+
+  <div class="section" id="python-api" style="background: var(--bg-elev);">
+    <div class="container">
+      <h2>Python API.</h2>
+      <pre><span class="k">from</span> context_engineer <span class="k">import</span> ConText
+
+ctx = ConText(
+    llm_model=<span class="s">"llama3.2"</span>,
+    embed_model=<span class="s">"nomic-embed-text"</span>,
+    context_window=<span class="s">8192</span>,
+)
+
+ctx.build(<span class="s">"./docs"</span>)
+ctx.add_text(<span class="s">"Some important info"</span>, source=<span class="s">"notes.md"</span>)
+
+answer = ctx.query(<span class="s">"What is X?"</span>)
+print(answer.text)        <span class="c"># "X is ... [1]"</span>
+print(answer.sources)     <span class="c"># [Source(...), ...]</span>
+print(answer.latency_ms)  <span class="c"># 1234</span>
+
+ctx.stats()
+<span class="c"># {'documents': 5, 'chunks': 312, 'embeddings': 312, ...}</span></pre>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="cta">
+      <h2>Stop fighting RAG infrastructure.</h2>
+      <p style="color: var(--fg-dim); margin-bottom: 24px;">Install ConText and ask your first question in 30 seconds.</p>
+      <a class="btn" href="https://github.com/Tabtii/context-engineer">Get Started on GitHub</a>
+      <a class="btn secondary" href="https://pypi.org/project/context-engineer/">View on PyPI</a>
+    </div>
+  </div>
+
+  <footer>
+    <div class="container">
+      <p>MIT License · Made by <a href="https://github.com/Tabtii">Torben</a> · <a href="https://github.com/Tabtii/context-engineer">Source</a> · <a href="https://github.com/Tabtii/context-engineer/issues">Issues</a></p>
+    </div>
+  </footer>
+</body>
+</html>
