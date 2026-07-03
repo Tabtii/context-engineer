@@ -5,6 +5,16 @@ All notable changes to ConText are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased] - v0.2.0
+
+### Added
+
+- **BM25 keyword search** with `BM25Index` for traditional keyword-based retrieval
+- **Hybrid Retriever** combining vector similarity + BM25 with Reciprocal Rank Fusion (RRF, k=60)
+- Vector weight: 0.7, BM25 weight: 0.3 (configurable)
+- 4 new tests (BM25 + Hybrid), 24/24 total passing
+- E2E test: German query on Python docs returns cited German answer
+
 ## [0.1.0] - 2026-07-04
 
 ### Added
