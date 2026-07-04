@@ -3,7 +3,7 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "context-engineer"
+name = "context-engineer-tabtii"
 version = "0.1.0"
 description = "Context-Engineer for local AI Agents. Zero-config RAG for Ollama with automatic chunking, token-budget awareness, and source citation."
 readme = "README.md"
