@@ -8,7 +8,7 @@ version = "0.1.0"
 description = "Context-Engineer for local AI Agents. Zero-config RAG for Ollama with automatic chunking, token-budget awareness, and source citation."
 readme = "README.md"
 requires-python = ">=3.11"
-license = { text = "MIT" }
+license = "MIT"
 authors = [
     { name = "Torben", email = "torbi95@gmail.com" }
 ]
@@ -16,7 +16,6 @@ keywords = ["rag", "ollama", "llm", "ai-agents", "context", "embeddings", "vecto
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",

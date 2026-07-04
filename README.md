@@ -57,11 +57,21 @@ ollama pull mistral          # 4GB, general
 
 ### 3. Index your docs
 
+**Option A: Local files**
+
 ```bash
 context build ./docs
 ```
 
 This recursively finds all `.md`, `.txt`, `.py`, `.js`, `.ts`, `.go`, `.rs`, `.java`, `.c`, `.cpp`, `.h`, `.hpp`, `.json`, `.yaml`, `.yml` files and indexes them with the right chunker.
+
+**Option B: Crawl a website**
+
+```bash
+context crawl https://docs.example.com --max-pages 20
+```
+
+Respects `robots.txt`, BFS-crawls same-domain pages, removes script/style/nav/footer.
 
 ### 4. Ask questions
 
